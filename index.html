@@ -99,8 +99,8 @@
       <div class="success-icon">✓</div><h2>Propuesta cerrada</h2><p id="resultNumber"></p>
       <button id="downloadPdf" class="primary wide" type="button">Descargar PDF</button>
       <button id="sharePdf" class="secondary wide" type="button">Compartir PDF</button>
-      <div class="whatsapp-grid"><button id="sendMarina" class="whatsapp" type="button">WhatsApp Marina</button><button id="sendAlberto" class="whatsapp" type="button">WhatsApp Alberto</button></div>
-      <p class="fineprint">Los botones abren el chat con un resumen preparado. WhatsApp exige confirmar manualmente el envío. Para adjuntar el PDF, usa “Compartir PDF”.</p>
+      <div class="send-grid"><button id="sendMarina" class="whatsapp" type="button">WhatsApp Marina</button><button id="sendAlberto" class="whatsapp" type="button">WhatsApp Alberto</button><button id="emailMarina" class="email" type="button">Correo Marina</button><button id="emailAlberto" class="email" type="button">Correo Alberto</button></div>
+      <p class="fineprint">Los botones preparan el destinatario, asunto y mensaje. Para incluir el documento como archivo adjunto, utiliza “Compartir PDF” y selecciona WhatsApp, Gmail u Outlook.</p>
     </dialog>
 
     <dialog id="settingsDialog">
@@ -108,6 +108,8 @@
       <form id="settingsForm">
         <label>Teléfono de Marina<input name="marinaPhone" inputmode="tel" placeholder="34600000000"><small>Con prefijo 34 y sin espacios.</small></label>
         <label>Teléfono de Alberto<input name="albertoPhone" inputmode="tel" placeholder="34600000000"></label>
+        <label>Correo de Marina<input name="marinaEmail" type="email" inputmode="email" placeholder="marina@empresa.com"></label>
+        <label>Correo de Alberto<input name="albertoEmail" type="email" inputmode="email" placeholder="alberto@empresa.com"></label>
         <label>Prefijo de numeración<input name="prefix" value="AY1"></label>
         <button class="primary wide" type="submit">Guardar configuración</button>
       </form>
