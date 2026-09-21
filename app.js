@@ -77,5 +77,5 @@ $('#downloadPdf').onclick=download;$('#sharePdf').onclick=share;$('#sendMarina')
 $$('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#settingsButton').onclick=()=>{const s=settings();Object.entries(s).forEach(([k,v])=>{if($('#settingsForm').elements[k])$('#settingsForm').elements[k].value=v;});$('#settingsDialog').showModal();};
 $('#settingsForm').onsubmit=e=>{e.preventDefault();const s=Object.fromEntries(new FormData(e.target).entries());localStorage.setItem('ayora-settings',JSON.stringify(s));$('#settingsDialog').close();};
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#installButton').classList.remove('hidden');});$('#installButton').onclick=async()=>{await installPrompt?.prompt();installPrompt=null;$('#installButton').classList.add('hidden');};
-if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js?v=8',{updateViaCache:'none'}).then(reg=>reg.update()).catch(()=>{});
 (async()=>{const {data:{session}}=await sb.auth.getSession();if(session)await enterApp(session);else showView('auth');})();
