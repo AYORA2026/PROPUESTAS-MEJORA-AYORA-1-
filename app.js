@@ -1,0 +1,72 @@
+/* global PDFLib */
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+const views = {home:$('#homeView'), form:$('#formView')};
+const form = $('#proposalForm');
+const canvas = $('#signatureCanvas');
+const ctx = canvas.getContext('2d');
+let currentStep = 1, drawing = false, signatureDirty = false, photos = [], currentPdf = null, currentRecord = null, installPrompt = null;
+const dbPromise = openDb();
+
+function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open('ayora-propuestas',1);req.onupgradeneeded=()=>req.result.createObjectStore('records',{keyPath:'id'});req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function dbPut(value){const db=await dbPromise;return new Promise((res,rej)=>{const tx=db.transaction('records','readwrite');tx.objectStore('records').put(value);tx.oncomplete=res;tx.onerror=()=>rej(tx.error);});}
+async function dbAll(){const db=await dbPromise;return new Promise((res,rej)=>{const req=db.transaction('records').objectStore('records').getAll();req.onsuccess=()=>res(req.result);req.onerror=()=>rej(req.error);});}
+
+function showView(name){Object.values(views).forEach(v=>v.classList.remove('active'));views[name].classList.add('active');scrollTo({top:0,behavior:'smooth'});}
+function nowLocal(){const d=new Date(), z=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())}T${z(d.getHours())}:${z(d.getMinutes())}`;}
+function data(){return Object.fromEntries(new FormData(form).entries());}
+function escapeHtml(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+function formatDate(v){return v?new Intl.DateTimeFormat('es-ES',{dateStyle:'short',timeStyle:'short'}).format(new Date(v)):'';}
+
+function resetForm(){form.reset();form.worksite.value='ISFV Ayora I';$('#inspectionDate').value=nowLocal();photos=[];signatureDirty=false;ctx.clearRect(0,0,canvas.width,canvas.height);currentStep=1;updateStep();$('#photoPreview').innerHTML='';$('#companyField').classList.add('hidden');$('#witnessField').classList.add('hidden');$('#signatureArea').classList.remove('hidden');}
+function updateStep(){ $$('.step').forEach(x=>x.classList.toggle('active',+x.dataset.step===currentStep));$('#stepLabel').textContent=`Paso ${currentStep} de 5`;$('#progressBar').style.width=`${currentStep*20}%`;$('#prevStep').classList.toggle('hidden',currentStep===1);$('#nextStep').classList.toggle('hidden',currentStep===5);$('#finishButton').classList.toggle('hidden',currentStep!==5);if(currentStep===5)renderReview();scrollTo({top:0,behavior:'smooth'});}
+function validateStep(){const step=$(`.step[data-step="${currentStep}"]`);for(const el of $$('[required]',step)){if(!el.checkValidity()){el.reportValidity();return false;}}if(currentStep===4&&data().signatureStatus==='signed'&&!signatureDirty){alert('La persona apercibida debe firmar antes de continuar.');return false;}return true;}
+function renderReview(){const d=data();$('#reviewCard').innerHTML=`<dl><dt>Fecha</dt><dd>${escapeHtml(formatDate(d.inspectionDate))}</dd><dt>Técnico</dt><dd>${escapeHtml(d.inspector)}</dd><dt>Destinatario</dt><dd>${d.recipientType==='eiffage'?'Grupo Eiffage':escapeHtml(d.company)}</dd><dt>Trabajador/es</dt><dd>${escapeHtml(d.workers)}</dd><dt>Ubicación</dt><dd>${escapeHtml(d.worksite)} · ${escapeHtml(d.zone)}</dd><dt>Incumplimiento</dt><dd>${escapeHtml(d.deficiencies)}</dd><dt>Corrección</dt><dd>${escapeHtml(d.correctiveAction)}</dd><dt>Plazo</dt><dd>${escapeHtml(d.deadline)}</dd><dt>Firma</dt><dd>${d.signatureStatus==='signed'?'Realizada':d.signatureStatus==='refused'?'Negativa a firmar':'Imposibilidad de firma'}</dd><dt>Fotos</dt><dd>${photos.length}</dd></dl>`;}
+
+function pointer(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};}
+canvas.addEventListener('pointerdown',e=>{drawing=true;signatureDirty=true;canvas.setPointerCapture(e.pointerId);const p=pointer(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=pointer(e);ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle='#111';ctx.lineTo(p.x,p.y);ctx.stroke();});
+canvas.addEventListener('pointerup',()=>drawing=false);canvas.addEventListener('pointercancel',()=>drawing=false);
+
+$('#photoInput').addEventListener('change',async e=>{photos=await Promise.all([...e.target.files].slice(0,6).map(fileToData));$('#photoPreview').innerHTML=photos.map(src=>`<img src="${src}" alt="Fotografía adjunta">`).join('');});
+function fileToData(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file);});}
+
+async function nextNumber(){const records=await dbAll();const year=new Date().getFullYear(), prefix=(settings().prefix||'AY1').toUpperCase();const n=records.filter(x=>x.number?.startsWith(`${prefix}-${year}-`)).length+1;return `${prefix}-${year}-${String(n).padStart(4,'0')}`;}
+function settings(){return {...{marinaPhone:'',albertoPhone:'',prefix:'AY1'},...JSON.parse(localStorage.getItem('ayora-settings')||'{}')};}
+function wrap(font,text,size,maxWidth){const words=String(text||'').split(/\s+/),lines=[];let line='';for(const word of words){const test=line?`${line} ${word}`:word;if(font.widthOfTextAtSize(test,size)>maxWidth){if(line)lines.push(line);line=word;}else line=test;}if(line)lines.push(line);return lines;}
+function drawBlock(page,font,text,x,y,maxWidth,size=9,lineHeight=11,maxLines=8){wrap(font,text,size,maxWidth).slice(0,maxLines).forEach((line,i)=>page.drawText(line,{x,y:y-i*lineHeight,size,font,color:PDFLib.rgb(.05,.08,.13)}));}
+
+async function makePdf(d,number){const pdf=await PDFLib.PDFDocument.create();const page=pdf.addPage([595.28,841.89]), font=await pdf.embedFont(PDFLib.StandardFonts.Helvetica), bold=await pdf.embedFont(PDFLib.StandardFonts.HelveticaBold);const navy=PDFLib.rgb(.04,.16,.34),red=PDFLib.rgb(.78,.04,.16),line=PDFLib.rgb(.45,.48,.53),pale=PDFLib.rgb(.95,.96,.97);
+  const box=(x,y,w,h)=>page.drawRectangle({x,y,width:w,height:h,borderColor:line,borderWidth:.7});
+  const label=(text,y)=>{page.drawRectangle({x:28,y,width:539,height:18,color:pale,borderColor:line,borderWidth:.7});page.drawText(text,{x:33,y:y+5,size:8,font:bold,color:navy});};
+  box(28,746,539,70);box(28,746,105,70);box(441,746,126,70);page.drawText('EIFFAGE',{x:43,y:772,size:17,font:bold,color:PDFLib.rgb(.05,.05,.05)});page.drawText('ENERGIA SISTEMAS',{x:44,y:759,size:6,font:bold,color:PDFLib.rgb(.15,.15,.15)});page.drawText('PROPUESTA DE MEJORA POR INCIDENCIA',{x:151,y:790,size:11,font:bold,color:red});page.drawText('EN MEDIDAS DE SEGURIDAD',{x:195,y:774,size:11,font:bold,color:red});page.drawText('RG-SPM-28',{x:469,y:787,size:10,font:bold,color:navy});page.drawText('Edicion 09 · Enero 2026',{x:456,y:762,size:7,font,color:PDFLib.rgb(.2,.2,.2)});
+  page.drawText(`N.º ${number}`,{x:28,y:729,size:8,font:bold,color:navy});page.drawText(`Fecha de inspeccion: ${formatDate(d.inspectionDate)}`,{x:385,y:729,size:8,font:bold,color:navy});
+  let y=697;label(d.recipientType==='eiffage'?'AL/LOS TRABAJADORES DEL GRUPO EIFFAGE ENERGIA SISTEMAS':'A LA/S EMPRESA/S Y/O TRABAJADOR AUTONOMO',y);y-=54;box(28,y,539,54);drawBlock(page,font,d.recipientType==='eiffage'?d.workers:d.company,34,y+34,525,9,11,3);
+  y-=20;label('EN LA OBRA O CENTRO DE TRABAJO',y);y-=48;box(28,y,539,48);drawBlock(page,font,`${d.worksite} · Zona: ${d.zone}`,34,y+29,525,9,11,3);
+  y-=20;label('DEFICIENCIAS O INCUMPLIMIENTOS OBSERVADOS',y);y-=115;box(28,y,539,115);drawBlock(page,font,d.deficiencies,34,y+94,525,9,12,8);
+  if(d.recipientType==='contractor'){y-=20;label('TRABAJADORES/AS APERCIBIDOS',y);y-=45;box(28,y,539,45);drawBlock(page,font,d.workers,34,y+27,525,9,11,2);}
+  y-=20;label('PROPOSICION CORRECTORA',y);y-=112;box(28,y,539,112);drawBlock(page,font,`${d.correctiveAction}\nPlazo: ${d.deadline}. Clasificacion: ${d.classification}.`,34,y+92,525,9,12,8);
+  const status=d.signatureStatus==='signed'?'Recibido y conforme con compromiso de correccion':d.signatureStatus==='refused'?`Se niega a firmar. Testigo: ${d.witness||'No consta'}`:`No puede firmar. Testigo: ${d.witness||'No consta'}`;page.drawText(status,{x:42,y:74,size:8,font});page.drawText('Fdo. Trabajador/a apercibido/a',{x:370,y:74,size:8,font});
+  if(d.signatureStatus==='signed'&&signatureDirty){const sig=await pdf.embedPng(canvas.toDataURL('image/png'));page.drawImage(sig,{x:365,y:84,width:155,height:62});}
+  page.drawLine({start:{x:28,y:61},end:{x:567,y:61},thickness:.7,color:line});page.drawText(`Emitido por: ${d.inspector} · ${formatDate(d.inspectionDate)} · Copia entregada: ${d.copyDelivered?'Si':'No'}${d.repeatOffence?' · REINCIDENCIA':''}`,{x:28,y:45,size:6.5,font});
+  for(let i=0;i<photos.length;i++){if(i%2===0){const p=pdf.addPage([595.28,841.89]);p.drawText(`ANEXO FOTOGRÁFICO · ${number}`,{x:36,y:805,size:12,font:bold,color:PDFLib.rgb(.1,.2,.35)});}const p=pdf.getPages().at(-1),bytes=await fetch(photos[i]).then(r=>r.arrayBuffer());let image;try{image=photos[i].startsWith('data:image/png')?await pdf.embedPng(bytes):await pdf.embedJpg(bytes);}catch{continue;}const dims=image.scaleToFit(520,330), y=i%2===0?440:75;p.drawImage(image,{x:(595.28-dims.width)/2,y,width:dims.width,height:dims.height});p.drawText(`Fotografía ${i+1}`,{x:36,y:y-16,size:8,font});}
+  return new Blob([await pdf.save()],{type:'application/pdf'});
+}
+
+async function finalize(e){e.preventDefault();if(!$('#truthCheck').checked){$('#truthCheck').reportValidity();return;}const d=data(),number=await nextNumber();currentPdf=await makePdf(d,number);currentRecord={id:crypto.randomUUID(),number,createdAt:new Date().toISOString(),status:'pendiente',summary:{workers:d.workers,company:d.company||'Eiffage',zone:d.zone},pdf:currentPdf};await dbPut(currentRecord);localStorage.removeItem('ayora-draft');$('#resultNumber').textContent=`${number} · ${d.workers}`;$('#resultDialog').showModal();refreshHistory();}
+function pdfFile(){return new File([currentPdf],`${currentRecord.number}.pdf`,{type:'application/pdf'});}
+function download(){const a=document.createElement('a');a.href=URL.createObjectURL(currentPdf);a.download=`${currentRecord.number}.pdf`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);}
+async function share(){if(navigator.canShare?.({files:[pdfFile()]}))await navigator.share({title:currentRecord.number,text:'Propuesta de mejora RG-SPM-28',files:[pdfFile()]});else download();}
+function whatsapp(person){const s=settings(),phone=person==='Marina'?s.marinaPhone:s.albertoPhone;if(!phone){alert(`Configura primero el teléfono de ${person}.`);$('#settingsDialog').showModal();return;}const d=data(),msg=`Propuesta de mejora ${currentRecord.number}\nPersona apercibida: ${d.workers}\nEmpresa: ${d.company||'Grupo Eiffage'}\nZona: ${d.zone}\nFecha: ${formatDate(d.inspectionDate)}\n\nEl PDF se comparte por separado.`;open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank','noopener');}
+
+async function refreshHistory(){const records=(await dbAll()).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));$('#totalCount').textContent=records.length;$('#pendingCount').textContent=records.filter(x=>x.status==='pendiente').length;$('#closedCount').textContent=records.filter(x=>x.status==='cerrada').length;$('#historyList').innerHTML=records.length?records.map(r=>`<div class="history-item"><div><strong>${escapeHtml(r.number)}</strong><span>${escapeHtml(r.summary.workers)} · ${escapeHtml(r.summary.zone)}</span><span>${new Date(r.createdAt).toLocaleString('es-ES')}</span></div><span class="status">${escapeHtml(r.status)}</span></div>`).join(''):'<p class="empty">Todavía no hay propuestas guardadas.</p>';}
+
+$('#newButton').onclick=()=>{resetForm();showView('form');};$('#backButton').onclick=()=>showView('home');$('#nextStep').onclick=()=>{if(validateStep()){currentStep++;updateStep();}};$('#prevStep').onclick=()=>{currentStep--;updateStep();};$('#clearSignature').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);signatureDirty=false;};form.onsubmit=finalize;
+$$('[name="recipientType"]').forEach(x=>x.onchange=()=>{$('#companyField').classList.toggle('hidden',data().recipientType!=='contractor');form.company.required=data().recipientType==='contractor';});
+$$('[name="signatureStatus"]').forEach(x=>x.onchange=()=>{const signed=data().signatureStatus==='signed';$('#signatureArea').classList.toggle('hidden',!signed);$('#witnessField').classList.toggle('hidden',signed);form.witness.required=!signed;});
+$('#saveDraft').onclick=()=>{localStorage.setItem('ayora-draft',JSON.stringify(data()));alert('Borrador guardado en este dispositivo.');};
+$('#downloadPdf').onclick=download;$('#sharePdf').onclick=share;$('#sendMarina').onclick=()=>whatsapp('Marina');$('#sendAlberto').onclick=()=>whatsapp('Alberto');
+$$('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());$('#settingsButton').onclick=()=>{const s=settings();Object.entries(s).forEach(([k,v])=>{if($('#settingsForm').elements[k])$('#settingsForm').elements[k].value=v;});$('#settingsDialog').showModal();};
+$('#settingsForm').onsubmit=e=>{e.preventDefault();const s=Object.fromEntries(new FormData(e.target).entries());localStorage.setItem('ayora-settings',JSON.stringify(s));$('#settingsDialog').close();};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('#installButton').classList.remove('hidden');});$('#installButton').onclick=async()=>{await installPrompt?.prompt();installPrompt=null;$('#installButton').classList.add('hidden');};
+if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js');refreshHistory();
