@@ -7,11 +7,11 @@ Aplicación web progresiva para cumplimentar en campo el formulario RG-SPM-28, r
 - Formulario guiado para personal Eiffage, empresas y autónomos.
 - Firma manuscrita táctil y registro de negativa o imposibilidad de firma.
 - Fotografías como anexo del documento.
-- Generación local del PDF con la estructura del modelo RG-SPM-28.
+- Generación local sobre una copia exacta del PDF oficial RG-SPM-28, edición 09.
 - Histórico local mediante IndexedDB.
 - Borrador local y funcionamiento sin conexión tras la primera carga.
 - Compartir el PDF mediante la hoja nativa del móvil.
-- Accesos directos a los chats de Marina y Alberto con mensaje preparado.
+- Accesos directos a WhatsApp y correo electrónico de Marina y Alberto con mensaje preparado.
 
 ## Privacidad y alcance
 
