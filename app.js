@@ -2,7 +2,8 @@
 const $ = (s, root=document) => root.querySelector(s);
 const $$ = (s, root=document) => [...root.querySelectorAll(s)];
 const views = {auth:$('#authView'), home:$('#homeView'), form:$('#formView')};
-const sb = supabase.createClient('https://opvmwbxtllwkureadfxw.supabase.co','sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W');
+const SUPABASE_URL='https://opvmwbxtllwkureadfxw.supabase.co',SUPABASE_KEY='sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W';
+const sb = supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const form = $('#proposalForm');
 const canvas = $('#signatureCanvas');
 const ctx = canvas.getContext('2d');
@@ -64,7 +65,7 @@ async function enterApp(session){currentUser=session.user;const {data:profile,er
 $('#loginForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));const email=d.username.trim().toLowerCase()+'@usuarios.ayora1.es';const {data:result,error}=await sb.auth.signInWithPassword({email,password:d.password});if(error)return authMessage('Usuario o contraseña incorrectos.',true);authMessage('');await enterApp(result.session);};
 $('#showActivation').onclick=()=>{$('#loginForm').classList.add('hidden');$('#showActivation').classList.add('hidden');$('#activationForm').classList.remove('hidden');$('#authMessage').classList.add('hidden');};
 $('#cancelActivation').onclick=()=>{$('#activationForm').classList.add('hidden');$('#loginForm').classList.remove('hidden');$('#showActivation').classList.remove('hidden');};
-$('#activationForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));authMessage('Activando usuario…');const {data:result,error}=await sb.functions.invoke('activate-user',{body:d});if(error||result?.error)return authMessage(result?.error||'No se pudo activar el usuario.',true);const login=await sb.auth.signInWithPassword({email:d.username.toLowerCase()+'@usuarios.ayora1.es',password:d.password});if(login.error)return authMessage('Usuario activado. Entra con tu contraseña.',false);await enterApp(login.data.session);};
+$('#activationForm').onsubmit=async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.target));authMessage('Activando usuario…');try{const response=await fetch(`${SUPABASE_URL}/functions/v1/activate-user`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`},body:JSON.stringify(d)});const result=await response.json().catch(()=>({}));if(!response.ok||result?.error)return authMessage(result?.error||`No se pudo activar el usuario (error ${response.status}).`,true);const login=await sb.auth.signInWithPassword({email:d.username.toLowerCase()+'@usuarios.ayora1.es',password:d.password});if(login.error)return authMessage('Usuario activado. Entra con tu contraseña.',false);await enterApp(login.data.session);}catch(error){authMessage(`No se pudo conectar con el servicio de activación: ${error.message}`,true);}};
 $('#logoutButton').onclick=async()=>{await sb.auth.signOut();currentUser=currentProfile=null;showView('auth');};
 $('#workerSelect').onchange=e=>{if(e.target.value)form.workers.value=e.target.value;};$('#deficiencySelect').onchange=e=>{if(e.target.value)form.deficiencies.value=e.target.value;};$('#correctiveSelect').onchange=e=>{if(e.target.value)form.correctiveAction.value=e.target.value;};
 
