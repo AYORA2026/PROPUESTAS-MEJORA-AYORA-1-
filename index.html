@@ -18,7 +18,28 @@
   </header>
 
   <main>
-    <section id="homeView" class="view active">
+    <section id="authView" class="view active">
+      <div class="auth-card">
+        <p class="eyebrow">Acceso del equipo</p>
+        <h1>Propuestas de mejora · Ayora I</h1>
+        <form id="loginForm">
+          <label>Usuario<input name="username" autocomplete="username" autocapitalize="characters" placeholder="AYOTECAL" required></label>
+          <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
+          <button class="primary wide" type="submit">Entrar</button>
+        </form>
+        <button id="showActivation" class="link wide" type="button">Activar mi usuario por primera vez</button>
+        <form id="activationForm" class="hidden">
+          <label>Usuario<select name="username" required><option value="">Selecciona tu usuario</option><option>AYOTECMA</option><option>AYOTECAL</option><option>AYORECAN</option><option>AYORECMA</option></select></label>
+          <label>Código personal de activación<input name="activationCode" autocomplete="one-time-code" required></label>
+          <label>Crea tu contraseña<input name="password" type="password" minlength="10" autocomplete="new-password" required><small>Mínimo 10 caracteres.</small></label>
+          <button class="primary wide" type="submit">Activar y entrar</button>
+          <button id="cancelActivation" class="link wide" type="button">Volver al acceso</button>
+        </form>
+        <p id="authMessage" class="notice hidden"></p>
+      </div>
+    </section>
+
+    <section id="homeView" class="view">
       <div class="hero">
         <p class="eyebrow">Prevención en campo</p>
         <h1>Registrar una propuesta lleva menos de cinco minutos</h1>
@@ -31,7 +52,7 @@
         <div><strong id="closedCount">0</strong><span>Cerradas</span></div>
       </div>
       <section class="panel">
-        <div class="section-heading"><h2>Histórico en este dispositivo</h2><button id="settingsButton" class="link" type="button">Configuración</button></div>
+        <div class="section-heading"><h2>Histórico compartido</h2><div><button id="settingsButton" class="link" type="button">Configuración</button><button id="logoutButton" class="link" type="button">Salir</button></div></div>
         <div id="historyList" class="history-list"><p class="empty">Todavía no hay propuestas guardadas.</p></div>
       </section>
     </section>
@@ -42,9 +63,9 @@
         <fieldset class="step active" data-step="1">
           <legend>Inspección</legend>
           <label>Fecha y hora<input id="inspectionDate" name="inspectionDate" type="datetime-local" required></label>
-          <label>Técnico o recurso preventivo<input name="inspector" autocomplete="name" placeholder="Nombre y apellidos" required></label>
+          <label>Técnico o recurso preventivo<input name="inspector" readonly required></label>
           <label>Obra o centro de trabajo<input name="worksite" value="ISFV Ayora I" required></label>
-          <label>Zona concreta<input name="zone" placeholder="Ej.: PV14, CT26, Campa…" required></label>
+          <label>Zona concreta<input name="zone" list="zoneOptions" placeholder="Ej.: PV14, CT26, Campa…" required></label>
         </fieldset>
 
         <fieldset class="step" data-step="2">
@@ -53,14 +74,17 @@
             <label class="choice"><input type="radio" name="recipientType" value="eiffage" checked><span>Trabajador/a del Grupo Eiffage</span></label>
             <label class="choice"><input type="radio" name="recipientType" value="contractor"><span>Empresa, autónomo o subcontrata</span></label>
           </div>
-          <label id="companyField" class="hidden">Empresa o autónomo<input name="company" placeholder="Razón social"></label>
+          <label id="companyField" class="hidden">Empresa o autónomo<input name="company" list="companyOptions" placeholder="Razón social"></label>
+          <label>Seleccionar trabajador ya registrado<select id="workerSelect"><option value="">— Escribir uno nuevo —</option></select></label>
           <label>Trabajador/a o trabajadores apercibidos<textarea name="workers" rows="3" placeholder="Nombre y apellidos" required></textarea></label>
           <label class="check"><input type="checkbox" name="repeatOffence"><span>Existe reincidencia conocida</span></label>
         </fieldset>
 
         <fieldset class="step" data-step="3">
           <legend>Incumplimiento y corrección</legend>
+          <label>Seleccionar incumplimiento ya registrado<select id="deficiencySelect"><option value="">— Escribir uno nuevo —</option></select></label>
           <label>Deficiencias o incumplimientos observados<textarea name="deficiencies" rows="6" placeholder="Describe hechos concretos, ubicación y circunstancias. Evita valoraciones personales." required></textarea></label>
+          <label>Seleccionar medida ya registrada<select id="correctiveSelect"><option value="">— Escribir una nueva —</option></select></label>
           <label>Proposición correctora<textarea name="correctiveAction" rows="5" placeholder="Indica qué debe corregirse y cómo." required></textarea></label>
           <div class="two-cols"><label>Plazo de corrección<select name="deadline"><option>Inmediato</option><option>24 horas</option><option>48 horas</option><option>7 días</option><option>Otro</option></select></label><label>Clasificación<select name="classification"><option>Leve</option><option>Grave</option><option>Muy grave</option><option>Sin clasificar</option></select></label></div>
           <label>Fotografías<input id="photoInput" type="file" accept="image/*" capture="environment" multiple><small>Opcional. Se incorporarán como anexo al PDF.</small></label>
@@ -116,7 +140,10 @@
     </dialog>
   </main>
 
+  <datalist id="zoneOptions"></datalist><datalist id="companyOptions"></datalist><datalist id="workerOptions"></datalist><datalist id="deficiencyOptions"></datalist><datalist id="correctiveOptions"></datalist>
+
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
