@@ -1,150 +1,460 @@
 <!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#c8102e">
-  <meta name="description" content="Propuestas de mejora RG-SPM-28 para ISFV Ayora I">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=10">
-  <title>Propuestas de mejora · Ayora I</title>
-</head>
-<body>
-  <header class="topbar">
-    <div class="brand-mark">E</div>
-    <div><strong>PROPUESTAS DE MEJORA</strong><span>ISFV Ayora I · RG-SPM-28</span></div>
-    <button id="installButton" class="ghost hidden" type="button">Instalar</button>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#c8102e" />
+    <meta
+      name="description"
+      content="Propuestas de mejora RG-SPM-28 para proyectos Eiffage"
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=11" />
+    <title>Propuestas de mejora · Ayora I</title>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand-mark">E</div>
+      <div>
+        <strong>PROPUESTAS DE MEJORA</strong
+        ><span>ISFV Ayora I · RG-SPM-28</span>
+      </div>
+      <span class="version-badge">v11.0</span>
+      <button id="installButton" class="ghost hidden" type="button">
+        Instalar
+      </button>
+    </header>
 
-  <main>
-    <section id="authView" class="view active">
-      <div class="auth-card">
-        <p class="eyebrow">Acceso del equipo</p>
-        <h1>Propuestas de mejora · Ayora I</h1>
-        <form id="loginForm">
-          <label>Usuario<input name="username" autocomplete="username" autocapitalize="characters" placeholder="AYOTECAL" required></label>
-          <label>Contraseña<input name="password" type="password" autocomplete="current-password" required></label>
-          <button class="primary wide" type="submit">Entrar</button>
-        </form>
-        <button id="showActivation" class="link wide" type="button">Activar mi usuario por primera vez</button>
-        <form id="activationForm" class="hidden">
-          <label>Usuario<select name="username" required><option value="">Selecciona tu usuario</option><option>AYOTECMA</option><option>AYOTECAL</option><option>AYORECAN</option><option>AYORECMA</option></select></label>
-          <label>Código personal de activación<input name="activationCode" autocomplete="one-time-code" required></label>
-          <label>Crea tu contraseña<input name="password" type="password" minlength="10" autocomplete="new-password" required><small>Mínimo 10 caracteres.</small></label>
-          <button class="primary wide" type="submit">Activar y entrar</button>
-          <button id="cancelActivation" class="link wide" type="button">Volver al acceso</button>
-        </form>
-        <p id="authMessage" class="notice hidden"></p>
-      </div>
-    </section>
-
-    <section id="homeView" class="view">
-      <div class="hero">
-        <p class="eyebrow">Prevención en campo</p>
-        <h1>Registrar una propuesta lleva menos de cinco minutos</h1>
-        <p>Datos guiados, firma táctil, PDF oficial y envío a los responsables de seguridad.</p>
-        <button id="newButton" class="primary wide" type="button">＋ Nueva propuesta</button>
-      </div>
-      <div class="stats">
-        <div><strong id="totalCount">0</strong><span>Registradas</span></div>
-        <div><strong id="pendingCount">0</strong><span>Pendientes</span></div>
-        <div><strong id="closedCount">0</strong><span>Cerradas</span></div>
-      </div>
-      <p id="syncNotice" class="notice hidden" role="status" aria-live="polite"></p>
-      <section class="panel">
-        <div class="section-heading"><h2>Histórico compartido</h2><div><button id="settingsButton" class="link" type="button">Configuración</button><button id="logoutButton" class="link" type="button">Salir</button></div></div>
-        <div id="historyList" class="history-list"><p class="empty">Todavía no hay propuestas guardadas.</p></div>
+    <main>
+      <section id="authView" class="view active">
+        <div class="auth-card">
+          <p class="eyebrow">Acceso del equipo</p>
+          <h1>Propuestas de mejora · Ayora I</h1>
+          <form id="loginForm">
+            <label
+              >Usuario<input
+                name="username"
+                autocomplete="username"
+                autocapitalize="characters"
+                placeholder="AYOTECAL"
+                required
+            /></label>
+            <label
+              >Contraseña<input
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+            /></label>
+            <button class="primary wide" type="submit">Entrar</button>
+          </form>
+          <button id="showActivation" class="link wide" type="button">
+            Activar mi usuario por primera vez
+          </button>
+          <form id="activationForm" class="hidden">
+            <label
+              >Usuario autorizado<input
+                name="username"
+                autocomplete="username"
+                autocapitalize="characters"
+                placeholder="Código facilitado por el administrador"
+                required
+            /></label>
+            <label
+              >Código personal de activación<input
+                name="activationCode"
+                autocomplete="one-time-code"
+                required
+            /></label>
+            <label
+              >Crea tu contraseña<input
+                name="password"
+                type="password"
+                minlength="10"
+                autocomplete="new-password"
+                required
+              /><small>Mínimo 10 caracteres.</small></label
+            >
+            <button class="primary wide" type="submit">Activar y entrar</button>
+            <button id="cancelActivation" class="link wide" type="button">
+              Volver al acceso
+            </button>
+          </form>
+          <p id="authMessage" class="notice hidden"></p>
+        </div>
       </section>
-    </section>
 
-    <section id="formView" class="view">
-      <div class="form-head"><button id="backButton" class="back" type="button">‹ Volver</button><div><span id="stepLabel">Paso 1 de 5</span><div class="progress"><i id="progressBar"></i></div></div></div>
-      <form id="proposalForm" novalidate>
-        <fieldset class="step active" data-step="1">
-          <legend>Inspección</legend>
-          <label>Fecha y hora<input id="inspectionDate" name="inspectionDate" type="datetime-local" required></label>
-          <label>Técnico o recurso preventivo<input name="inspector" readonly required></label>
-          <label>Obra o centro de trabajo<input name="worksite" value="ISFV Ayora I" required></label>
-          <label>Zona concreta<input name="zone" list="zoneOptions" placeholder="Ej.: PV14, CT26, Campa…" required></label>
-        </fieldset>
-
-        <fieldset class="step" data-step="2">
-          <legend>Persona apercibida</legend>
-          <div class="choice-grid">
-            <label class="choice"><input type="radio" name="recipientType" value="eiffage" checked><span>Trabajador/a del Grupo Eiffage</span></label>
-            <label class="choice"><input type="radio" name="recipientType" value="contractor"><span>Empresa, autónomo o subcontrata</span></label>
+      <section id="homeView" class="view">
+        <div class="hero">
+          <p class="eyebrow">Prevención en campo</p>
+          <h1>Registrar una propuesta lleva menos de cinco minutos</h1>
+          <p>
+            Datos guiados, firma táctil, PDF oficial y envío exclusivo a los
+            técnicos autorizados.
+          </p>
+          <label class="project-picker"
+            >Proyecto<select
+              id="projectSelect"
+              aria-label="Proyecto activo"
+            ></select
+          ></label>
+          <button id="newButton" class="primary wide" type="button">
+            ＋ Nueva propuesta
+          </button>
+          <button id="shareAppButton" class="secondary wide" type="button">
+            Compartir aplicación por WhatsApp
+          </button>
+        </div>
+        <div class="stats">
+          <div><strong id="totalCount">0</strong><span>Registradas</span></div>
+          <div><strong id="pendingCount">0</strong><span>Pendientes</span></div>
+          <div><strong id="closedCount">0</strong><span>Cerradas</span></div>
+        </div>
+        <p
+          id="syncNotice"
+          class="notice hidden"
+          role="status"
+          aria-live="polite"
+        ></p>
+        <section class="panel">
+          <div class="section-heading">
+            <h2>Histórico compartido</h2>
+            <div>
+              <button id="settingsButton" class="link" type="button">
+                Configuración</button
+              ><button id="logoutButton" class="link" type="button">
+                Salir
+              </button>
+            </div>
           </div>
-          <label id="companyField" class="hidden">Empresa o autónomo<input name="company" list="companyOptions" placeholder="Razón social"></label>
-          <label>Seleccionar trabajador ya registrado<select id="workerSelect"><option value="">— Escribir uno nuevo —</option></select></label>
-          <label>Trabajador/a o trabajadores apercibidos<textarea name="workers" rows="3" placeholder="Nombre y apellidos" required></textarea></label>
-          <label class="check"><input type="checkbox" name="repeatOffence"><span>Existe reincidencia conocida</span></label>
-        </fieldset>
-
-        <fieldset class="step" data-step="3">
-          <legend>Incumplimiento y corrección</legend>
-          <label>Seleccionar incumplimiento ya registrado<select id="deficiencySelect"><option value="">— Escribir uno nuevo —</option></select></label>
-          <label>Deficiencias o incumplimientos observados<textarea name="deficiencies" rows="6" placeholder="Describe hechos concretos, ubicación y circunstancias. Evita valoraciones personales." required></textarea></label>
-          <label>Seleccionar medida ya registrada<select id="correctiveSelect"><option value="">— Escribir una nueva —</option></select></label>
-          <label>Proposición correctora<textarea name="correctiveAction" rows="5" placeholder="Indica qué debe corregirse y cómo." required></textarea></label>
-          <div class="two-cols"><label>Plazo de corrección<select name="deadline"><option>Inmediato</option><option>24 horas</option><option>48 horas</option><option>7 días</option><option>Otro</option></select></label><label>Clasificación<select name="classification"><option>Leve</option><option>Grave</option><option>Muy grave</option><option>Sin clasificar</option></select></label></div>
-          <label>Fotografías<input id="photoInput" type="file" accept="image/*" capture="environment" multiple><small>Opcional. Se incorporarán como anexo al PDF.</small></label>
-          <div id="photoPreview" class="photo-preview"></div>
-        </fieldset>
-
-        <fieldset class="step" data-step="4">
-          <legend>Recepción y firma</legend>
-          <p class="notice">La firma acredita la recepción de la propuesta y el compromiso de corrección; no sustituye una firma electrónica cualificada.</p>
-          <div class="choice-grid three">
-            <label class="choice"><input type="radio" name="signatureStatus" value="signed" checked><span>Firma realizada</span></label>
-            <label class="choice"><input type="radio" name="signatureStatus" value="refused"><span>Se niega a firmar</span></label>
-            <label class="choice"><input type="radio" name="signatureStatus" value="unable"><span>No puede firmar</span></label>
+          <div id="historyList" class="history-list">
+            <p class="empty">Todavía no hay propuestas guardadas.</p>
           </div>
-          <div id="signatureArea">
-            <label>Firma de la persona apercibida</label>
-            <canvas id="signatureCanvas" width="900" height="360" aria-label="Área de firma táctil"></canvas>
-            <button id="clearSignature" class="secondary" type="button">Borrar firma</button>
+        </section>
+      </section>
+
+      <section id="formView" class="view">
+        <div class="form-head">
+          <button id="backButton" class="back" type="button">‹ Volver</button>
+          <div>
+            <span id="stepLabel">Paso 1 de 5</span>
+            <div class="progress"><i id="progressBar"></i></div>
           </div>
-          <label id="witnessField" class="hidden">Testigo de la negativa o imposibilidad<input name="witness" placeholder="Nombre y apellidos"></label>
-          <label class="check"><input type="checkbox" name="copyDelivered" checked><span>Se entrega copia a la persona apercibida</span></label>
-        </fieldset>
+        </div>
+        <form id="proposalForm" novalidate>
+          <fieldset class="step active" data-step="1">
+            <legend>Inspección</legend>
+            <label
+              >Fecha y hora<input
+                id="inspectionDate"
+                name="inspectionDate"
+                type="datetime-local"
+                required
+            /></label>
+            <label
+              >Técnico o recurso preventivo<input
+                name="inspector"
+                readonly
+                required
+            /></label>
+            <label
+              >Obra o centro de trabajo<input
+                name="worksite"
+                value="ISFV Ayora I"
+                required
+            /></label>
+            <label
+              >Zona concreta<input
+                name="zone"
+                list="zoneOptions"
+                placeholder="Ej.: PV14, CT26, Campa…"
+                required
+            /></label>
+          </fieldset>
 
-        <fieldset class="step" data-step="5">
-          <legend>Revisión</legend>
-          <div id="reviewCard" class="review-card"></div>
-          <label class="check important"><input id="truthCheck" type="checkbox" required><span>Confirmo que los datos son correctos y que el documento quedará cerrado.</span></label>
-        </fieldset>
+          <fieldset class="step" data-step="2">
+            <legend>Persona apercibida</legend>
+            <div class="choice-grid">
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="recipientType"
+                  value="eiffage"
+                  checked
+                /><span>Trabajador/a del Grupo Eiffage</span></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="recipientType"
+                  value="contractor"
+                /><span>Empresa, autónomo o subcontrata</span></label
+              >
+            </div>
+            <label id="companyField" class="hidden"
+              >Empresa o autónomo<input
+                name="company"
+                list="companyOptions"
+                placeholder="Razón social"
+            /></label>
+            <label
+              >Seleccionar trabajador ya registrado<select id="workerSelect">
+                <option value="">— Escribir uno nuevo —</option>
+              </select></label
+            >
+            <label
+              >Trabajador/a o trabajadores apercibidos<textarea
+                name="workers"
+                rows="3"
+                placeholder="Nombre y apellidos"
+                required
+              ></textarea>
+            </label>
+            <label class="check"
+              ><input type="checkbox" name="repeatOffence" /><span
+                >Existe reincidencia conocida</span
+              ></label
+            >
+          </fieldset>
 
-        <div class="form-actions"><button id="prevStep" class="secondary hidden" type="button">Anterior</button><button id="saveDraft" class="ghost" type="button">Guardar borrador</button><button id="nextStep" class="primary" type="button">Siguiente</button><button id="finishButton" class="primary hidden" type="submit">Cerrar y generar PDF</button></div>
-      </form>
-    </section>
+          <fieldset class="step" data-step="3">
+            <legend>Incumplimiento y corrección</legend>
+            <label
+              >Seleccionar incumplimiento ya registrado<select
+                id="deficiencySelect"
+              >
+                <option value="">— Escribir uno nuevo —</option>
+              </select></label
+            >
+            <label
+              >Deficiencias o incumplimientos observados<textarea
+                name="deficiencies"
+                rows="6"
+                placeholder="Describe hechos concretos, ubicación y circunstancias. Evita valoraciones personales."
+                required
+              ></textarea>
+            </label>
+            <label
+              >Seleccionar medida ya registrada<select id="correctiveSelect">
+                <option value="">— Escribir una nueva —</option>
+              </select></label
+            >
+            <label
+              >Proposición correctora<textarea
+                name="correctiveAction"
+                rows="5"
+                placeholder="Indica qué debe corregirse y cómo."
+                required
+              ></textarea>
+            </label>
+            <div class="two-cols">
+              <label
+                >Plazo de corrección<select name="deadline">
+                  <option>Inmediato</option>
+                  <option>24 horas</option>
+                  <option>48 horas</option>
+                  <option>7 días</option>
+                  <option>Otro</option>
+                </select></label
+              ><label
+                >Clasificación<select name="classification">
+                  <option>Leve</option>
+                  <option>Grave</option>
+                  <option>Muy grave</option>
+                  <option>Sin clasificar</option>
+                </select></label
+              >
+            </div>
+            <label
+              >Fotografías<input
+                id="photoInput"
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+              /><small
+                >Opcional. Se incorporarán como anexo al PDF.</small
+              ></label
+            >
+            <div id="photoPreview" class="photo-preview"></div>
+          </fieldset>
 
-    <dialog id="resultDialog">
-      <button class="dialog-close" data-close type="button">×</button>
-      <div class="success-icon">✓</div><h2>Propuesta cerrada</h2><p id="resultNumber"></p>
-      <button id="downloadPdf" class="primary wide" type="button">Descargar PDF</button>
-      <button id="sharePdf" class="secondary wide" type="button">Compartir PDF</button>
-      <div class="send-grid"><button id="sendMarina" class="whatsapp" type="button">WhatsApp Marina</button><button id="sendAlberto" class="whatsapp" type="button">WhatsApp Alberto</button><button id="emailMarina" class="email" type="button">Correo Marina</button><button id="emailAlberto" class="email" type="button">Correo Alberto</button></div>
-      <p class="fineprint">Los botones preparan el destinatario, asunto y mensaje. Para incluir el documento como archivo adjunto, utiliza “Compartir PDF” y selecciona WhatsApp, Gmail u Outlook.</p>
-    </dialog>
+          <fieldset class="step" data-step="4">
+            <legend>Recepción y firma</legend>
+            <p class="notice">
+              La firma acredita la recepción de la propuesta y el compromiso de
+              corrección; no sustituye una firma electrónica cualificada.
+            </p>
+            <div class="choice-grid three">
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="signatureStatus"
+                  value="signed"
+                  checked
+                /><span>Firma realizada</span></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="signatureStatus"
+                  value="refused"
+                /><span>Se niega a firmar</span></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="signatureStatus"
+                  value="unable"
+                /><span>No puede firmar</span></label
+              >
+            </div>
+            <div id="signatureArea">
+              <label>Firma de la persona apercibida</label>
+              <canvas
+                id="signatureCanvas"
+                width="900"
+                height="360"
+                aria-label="Área de firma táctil"
+              ></canvas>
+              <button id="clearSignature" class="secondary" type="button">
+                Borrar firma
+              </button>
+            </div>
+            <label id="witnessField" class="hidden"
+              >Testigo de la negativa o imposibilidad<input
+                name="witness"
+                placeholder="Nombre y apellidos"
+            /></label>
+            <label class="check"
+              ><input type="checkbox" name="copyDelivered" checked /><span
+                >Se entrega copia a la persona apercibida</span
+              ></label
+            >
+          </fieldset>
 
-    <dialog id="settingsDialog">
-      <button class="dialog-close" data-close type="button">×</button><h2>Configuración</h2>
-      <form id="settingsForm">
-        <label>Teléfono de Marina<input name="marinaPhone" inputmode="tel" placeholder="34600000000"><small>Con prefijo 34 y sin espacios.</small></label>
-        <label>Teléfono de Alberto<input name="albertoPhone" inputmode="tel" placeholder="34600000000"></label>
-        <label>Correo de Marina<input name="marinaEmail" type="email" inputmode="email" placeholder="marina@empresa.com"></label>
-        <label>Correo de Alberto<input name="albertoEmail" type="email" inputmode="email" placeholder="alberto@empresa.com"></label>
-        <p class="notice">La numeración oficial AY1 la asigna el servidor al sincronizar, evitando duplicados entre móviles.</p>
-        <button class="primary wide" type="submit">Guardar configuración</button>
-      </form>
-    </dialog>
-  </main>
+          <fieldset class="step" data-step="5">
+            <legend>Revisión</legend>
+            <div id="reviewCard" class="review-card"></div>
+            <label class="check important"
+              ><input id="truthCheck" type="checkbox" required /><span
+                >Confirmo que los datos son correctos y que el documento quedará
+                cerrado.</span
+              ></label
+            >
+          </fieldset>
 
-  <datalist id="zoneOptions"></datalist><datalist id="companyOptions"></datalist><datalist id="workerOptions"></datalist><datalist id="deficiencyOptions"></datalist><datalist id="correctiveOptions"></datalist>
+          <div class="form-actions">
+            <button id="prevStep" class="secondary hidden" type="button">
+              Anterior</button
+            ><button id="saveDraft" class="ghost" type="button">
+              Guardar borrador</button
+            ><button id="nextStep" class="primary" type="button">
+              Siguiente</button
+            ><button id="finishButton" class="primary hidden" type="submit">
+              Cerrar y generar PDF
+            </button>
+          </div>
+        </form>
+      </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-<script src="app.js?v=10"></script>
-</body>
+      <dialog id="resultDialog">
+        <button class="dialog-close" data-close type="button">×</button>
+        <div class="success-icon">✓</div>
+        <h2>Propuesta cerrada</h2>
+        <p id="resultNumber"></p>
+        <button id="downloadPdf" class="primary wide" type="button">
+          Descargar PDF
+        </button>
+        <div id="recipientButtons" class="send-grid"></div>
+        <p class="fineprint">
+          Solo se muestran técnicos autorizados para el proyecto. Descarga el
+          PDF y adjúntalo en el chat o correo del técnico seleccionado.
+        </p>
+      </dialog>
+
+      <dialog id="settingsDialog">
+        <button class="dialog-close" data-close type="button">×</button>
+        <h2>Configuración del proyecto</h2>
+        <p id="settingsProject" class="notice"></p>
+        <p><strong>Versión de la aplicación:</strong> 11.0.0</p>
+        <section id="recipientSettings">
+          <h3>Técnicos destinatarios</h3>
+          <div id="recipientSettingsList"></div>
+          <button id="addRecipient" class="secondary wide" type="button">
+            Añadir técnico destinatario
+          </button>
+        </section>
+        <section id="projectUserAdmin">
+          <h3>Crear usuario del proyecto</h3>
+          <form id="createUserForm">
+            <label
+              >Usuario<input
+                name="username"
+                required
+                placeholder="Ej.: PROYECTOTEC1" /></label
+            ><label>Nombre completo<input name="fullName" required /></label
+            ><label
+              >Rol<select name="role">
+                <option value="member">Usuario del proyecto</option>
+                <option value="admin">Administrador del proyecto</option>
+              </select></label
+            ><label
+              >Código inicial<input
+                name="activationPin"
+                minlength="8"
+                required /></label
+            ><button class="primary wide" type="submit">
+              Crear usuario autorizado
+            </button>
+          </form>
+          <p id="createdUserMessage" class="notice hidden"></p>
+        </section>
+        <section id="globalProjectAdmin">
+          <h3>Crear nuevo proyecto</h3>
+          <form id="createProjectForm">
+            <label
+              >Código corto<input
+                name="code"
+                maxlength="12"
+                placeholder="Ej.: VLC2"
+                required /></label
+            ><label>Nombre del proyecto<input name="name" required /></label
+            ><label>Centro de trabajo<input name="worksite" required /></label
+            ><label
+              >Usuario del administrador<input
+                name="adminUsername"
+                required /></label
+            ><label
+              >Nombre del administrador<input
+                name="adminFullName"
+                required /></label
+            ><label
+              >Código inicial del administrador<input
+                name="activationPin"
+                minlength="8"
+                required /></label
+            ><button class="primary wide" type="submit">
+              Crear proyecto y administrador
+            </button>
+          </form>
+          <p id="createdProjectMessage" class="notice hidden"></p>
+        </section>
+      </dialog>
+    </main>
+
+    <datalist id="zoneOptions"></datalist
+    ><datalist id="companyOptions"></datalist
+    ><datalist id="workerOptions"></datalist
+    ><datalist id="deficiencyOptions"></datalist
+    ><datalist id="correctiveOptions"></datalist>
+
+    <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+    <script src="app.js?v=11"></script>
+  </body>
 </html>

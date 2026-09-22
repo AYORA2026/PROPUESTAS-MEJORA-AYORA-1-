@@ -1,6 +1,6 @@
 # Propuestas de mejora · Ayora I
 
-PWA para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido del equipo.
+PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido y aislado por proyecto. Versión actual: **11.0.0**.
 
 ## Funcionamiento
 
@@ -11,6 +11,10 @@ PWA para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, r
 - Sincronización automática al recuperar conexión, abrir o enfocar la aplicación y cada 60 segundos mientras está abierta.
 - Número oficial asignado exclusivamente por PostgreSQL. Hasta sincronizar se muestra `PENDIENTE-…`.
 - Histórico compartido y descarga posterior del PDF, desde la copia local o mediante enlace temporal al almacenamiento privado.
+- Selector de proyecto para usuarios que pertenezcan a más de uno.
+- Administrador general único, administradores de proyecto y usuarios ordinarios.
+- Envío de expedientes limitado a los técnicos destinatarios configurados por cada proyecto; no existe un botón genérico para compartir el PDF.
+- Botón independiente para compartir por WhatsApp únicamente el enlace de instalación de la aplicación.
 
 ## Garantías del cierre
 
