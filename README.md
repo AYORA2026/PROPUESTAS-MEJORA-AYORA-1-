@@ -1,32 +1,73 @@
-# Propuestas de mejora Ayora I
+# Propuestas de mejora · Ayora I
 
-Aplicación web progresiva para cumplimentar en campo el formulario RG-SPM-28, recoger firma táctil, generar el PDF y preparar su envío por WhatsApp.
+PWA para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido del equipo.
 
-## Funciones incluidas
+## Funcionamiento
 
-- Formulario guiado para personal Eiffage, empresas y autónomos.
-- Firma manuscrita táctil y registro de negativa o imposibilidad de firma.
-- Fotografías como anexo del documento.
-- Generación local sobre una copia exacta del PDF oficial RG-SPM-28, edición 09.
-- Histórico local mediante IndexedDB.
-- Borrador local y funcionamiento sin conexión tras la primera carga.
-- Compartir el PDF mediante la hoja nativa del móvil.
-- Accesos directos a WhatsApp y correo electrónico de Marina y Alberto con mensaje preparado.
+- Autenticación mediante Supabase Auth.
+- PDF generado sobre una copia byte a byte del modelo oficial. Se comprueba su SHA-256; si cambia o se corrompe, la generación se detiene.
+- Borradores completos en IndexedDB: texto, fotografías comprimidas y firma.
+- Cierre sin conexión: PDF y expediente se guardan primero en el móvil, dentro de una cola persistente.
+- Sincronización automática al recuperar conexión, abrir o enfocar la aplicación y cada 60 segundos mientras está abierta.
+- Número oficial asignado exclusivamente por PostgreSQL. Hasta sincronizar se muestra `PENDIENTE-…`.
+- Histórico compartido y descarga posterior del PDF, desde la copia local o mediante enlace temporal al almacenamiento privado.
 
-## Privacidad y alcance
+## Garantías del cierre
 
-Esta primera versión funciona completamente en el dispositivo. No envía datos a un servidor y GitHub solo aloja el código y la plantilla. Los números de teléfono se configuran desde la propia aplicación y quedan guardados localmente.
+El cierre utiliza un UUID creado en el dispositivo como clave idempotente. Así, un timeout o una respuesta perdida no duplica el expediente al reintentarlo:
 
-La firma dibujada es evidencia de recepción, pero no es una firma electrónica cualificada. Para un despliegue corporativo deben validarse la conservación, los plazos de supresión, el control de accesos y la información de protección de datos.
+1. Validar los datos y la plantilla oficial.
+2. Generar y conservar el PDF en IndexedDB.
+3. Crear el registro remoto como borrador.
+4. Subir el PDF al bucket privado.
+5. Marcar la propuesta como cerrada.
 
-## Publicación en GitHub Pages
+Si falla cualquier operación remota, la copia local permanece intacta y se reintenta. El indicador de conexión del navegador es solo orientativo: también se capturan los errores reales de red.
 
-1. Crear un repositorio, preferiblemente privado, y subir estos archivos a la rama `main`.
-2. En `Settings > Pages`, seleccionar `Deploy from a branch` y la carpeta raíz de `main`.
-3. Abrir la URL publicada desde el móvil y elegir `Añadir a pantalla de inicio`.
+## Seguridad de Supabase
 
-> Aviso: según el plan de GitHub, una página publicada desde un repositorio privado puede seguir teniendo acceso público. No se almacenan expedientes en GitHub, pero conviene usar un alojamiento corporativo con autenticación para el uso definitivo.
+La clave publicable del cliente no es un secreto. La protección depende de RLS y los permisos de PostgreSQL. La configuración desplegada incluye:
+
+- RLS activo en `profiles`, `proposals`, `catalog_items`, `proposal_photos` y `allowed_users`.
+- Ningún permiso de tabla para el rol anónimo.
+- Usuarios autenticados con lectura del histórico común; solo el propietario crea su propuesta y la modifica mientras es borrador. El administrador conserva las operaciones autorizadas.
+- El perfil no puede modificarse desde el cliente, evitando elevar el rol.
+- Bucket `proposal-pdfs` privado; lectura para integrantes autenticados y escritura solo en la carpeta del propio usuario.
+- La firma no se replica en una columna independiente: queda dentro del PDF privado para reducir exposición.
+
+Después de cualquier cambio de esquema deben repetirse la auditoría RLS y los asesores de seguridad de Supabase.
+
+## Protección de datos
+
+La aplicación aplica minimización, autenticación, almacenamiento privado y control de acceso, pero el cumplimiento RGPD/LOPDGDD **no puede resolverse solo con código**. Antes de ampliar el uso, Eiffage debe documentar y aprobar:
+
+- finalidad y base jurídica;
+- información a trabajadores y empresas;
+- perfiles autorizados y revisión periódica de accesos;
+- conservación, bloqueo y supresión de expedientes y copias locales;
+- contratos, región y condiciones de los encargados del tratamiento;
+- alojamiento corporativo frente a cuentas personales;
+- procedimiento de derechos, incidentes y copias de seguridad;
+- evaluación de impacto si el análisis interno determina que procede.
+
+Esto no sustituye la aprobación jurídica y corporativa necesaria para un despliegue general.
+
+## Modelo PDF
+
+El parámetro admitido es `?pdf=rg-spm28-ed09`. Si se solicita otra versión, la aplicación lo advierte. Las coordenadas están calibradas para Edición 09 y la huella esperada es:
+
+`13a9b8a765f7f00977eb32b1b1e87625f740982478a8d8c584f1080be67b8bf2`
+
+Una nueva edición exige incorporar el nuevo original, recalibrar los campos, actualizar la huella y repetir la revisión visual de todas las páginas.
 
 ## Prueba local
 
-Servir la carpeta con un servidor HTTP, por ejemplo `python -m http.server 8080`, y abrir `http://localhost:8080`. La generación del PDF no funciona abriendo `index.html` directamente como archivo.
+Servir la carpeta con HTTP, por ejemplo `python -m http.server 8080`, y abrir `http://localhost:8080`. No se debe abrir `index.html` directamente como archivo.
+
+Pruebas mínimas antes de publicar:
+
+1. Crear y recuperar un borrador con fotografía y firma.
+2. Cerrar dos propuestas sin conexión y comprobar que ambas quedan pendientes.
+3. Recuperar cobertura y confirmar número oficial, histórico compartido y PDF remoto.
+4. Descargar un PDF antiguo desde el histórico.
+5. Renderizar una propuesta Eiffage y otra de contratista y revisar cada campo sobre el RG-SPM-28.

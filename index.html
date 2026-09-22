@@ -7,7 +7,7 @@
   <meta name="description" content="Propuestas de mejora RG-SPM-28 para ISFV Ayora I">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=10">
   <title>Propuestas de mejora · Ayora I</title>
 </head>
 <body>
@@ -51,6 +51,7 @@
         <div><strong id="pendingCount">0</strong><span>Pendientes</span></div>
         <div><strong id="closedCount">0</strong><span>Cerradas</span></div>
       </div>
+      <p id="syncNotice" class="notice hidden" role="status" aria-live="polite"></p>
       <section class="panel">
         <div class="section-heading"><h2>Histórico compartido</h2><div><button id="settingsButton" class="link" type="button">Configuración</button><button id="logoutButton" class="link" type="button">Salir</button></div></div>
         <div id="historyList" class="history-list"><p class="empty">Todavía no hay propuestas guardadas.</p></div>
@@ -134,7 +135,7 @@
         <label>Teléfono de Alberto<input name="albertoPhone" inputmode="tel" placeholder="34600000000"></label>
         <label>Correo de Marina<input name="marinaEmail" type="email" inputmode="email" placeholder="marina@empresa.com"></label>
         <label>Correo de Alberto<input name="albertoEmail" type="email" inputmode="email" placeholder="alberto@empresa.com"></label>
-        <label>Prefijo de numeración<input name="prefix" value="AY1"></label>
+        <p class="notice">La numeración oficial AY1 la asigna el servidor al sincronizar, evitando duplicados entre móviles.</p>
         <button class="primary wide" type="submit">Guardar configuración</button>
       </form>
     </dialog>
@@ -144,6 +145,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-  <script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
