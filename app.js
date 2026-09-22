@@ -1013,9 +1013,9 @@ function openSettings() {
   adminOption.hidden = !currentProfile.is_superadmin;
   if (
     !currentProfile.is_superadmin &&
-    $("#createUserForm").role.value === "admin"
+    $("#createUserForm").elements.role.value === "admin"
   )
-    $("#createUserForm").role.value = "member";
+    $("#createUserForm").elements.role.value = "member";
   $("#settingsDialog").showModal();
 }
 
