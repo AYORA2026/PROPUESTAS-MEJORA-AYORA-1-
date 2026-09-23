@@ -8,7 +8,7 @@ const views = {
 };
 const SUPABASE_URL = "https://opvmwbxtllwkureadfxw.supabase.co",
   SUPABASE_KEY = "sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W";
-const APP_VERSION = "11.2.0",
+const APP_VERSION = "11.2.1",
   PDF_MODEL = "rg-spm28-ed09",
   PDF_MODEL_ALIASES = new Set([PDF_MODEL, "rg-spm28-v9"]),
   PDF_TEMPLATE_SHA256 =
@@ -385,18 +385,25 @@ async function makePdf(d) {
   const inspection = new Date(d.inspectionDate),
     day = String(inspection.getDate()).padStart(2, "0"),
     month = String(inspection.getMonth() + 1).padStart(2, "0"),
-    year = inspection.getFullYear(),
-    dateText = `${day}/${month}/${year}`;
-  page.drawRectangle({
-    x: 458,
-    y: 743,
-    width: 107,
-    height: 16.5,
-    color: PDFLib.rgb(1, 1, 1),
+    yearSuffix = String(inspection.getFullYear()).slice(-2),
+    dateY = 751;
+  page.drawText(day, {
+    x: 488.5,
+    y: dateY,
+    size: 8,
+    font: bold,
+    color: PDFLib.rgb(0.05, 0.08, 0.13),
   });
-  page.drawText(dateText, {
-    x: 491,
-    y: 748.5,
+  page.drawText(month, {
+    x: 502.5,
+    y: dateY,
+    size: 8,
+    font: bold,
+    color: PDFLib.rgb(0.05, 0.08, 0.13),
+  });
+  page.drawText(yearSuffix, {
+    x: 526.3,
+    y: dateY,
     size: 8,
     font: bold,
     color: PDFLib.rgb(0.05, 0.08, 0.13),
@@ -1360,7 +1367,7 @@ $("#installButton").onclick = async () => {
 };
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
-    .register("sw.js?v=11.2.0", { updateViaCache: "none" })
+    .register("sw.js?v=11.2.1", { updateViaCache: "none" })
     .then((reg) => reg.update())
     .catch(() => {});
 (async () => {
