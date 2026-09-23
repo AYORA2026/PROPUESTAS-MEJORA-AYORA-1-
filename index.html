@@ -23,7 +23,7 @@
         <strong>PROPUESTAS DE MEJORA</strong
         ><span>ISFV Ayora I · RG-SPM-28</span>
       </div>
-      <span class="version-badge">v11.1.0</span>
+      <span class="version-badge">v11.2.0</span>
       <button id="installButton" class="ghost hidden" type="button">
         Instalar
       </button>
@@ -388,7 +388,8 @@
         <button class="dialog-close" data-close type="button">×</button>
         <h2>Configuración del proyecto</h2>
         <p id="settingsProject" class="notice"></p>
-        <p><strong>Versión de la aplicación:</strong> 11.1.0</p>
+        <p><strong>Versión de la aplicación:</strong> 11.2.0</p>
+        <p id="currentUserProfile" class="notice"></p>
         <section id="recipientSettings">
           <h3>Técnicos destinatarios</h3>
           <div id="recipientSettingsList"></div>
@@ -406,7 +407,12 @@
                 placeholder="Ej.: PROYECTOTEC1" /></label
             ><label>Nombre completo<input name="fullName" required /></label
             ><label
-              >Rol<select name="role">
+              >Perfil profesional<select name="professionalRole" required>
+                <option value="tecnico">Técnico de Prevención</option>
+                <option value="recurso">Recurso Preventivo</option>
+              </select></label
+            ><label
+              >Permisos en la aplicación<select name="accessRole" required>
                 <option value="member">Usuario del proyecto</option>
                 <option value="admin">Administrador del proyecto</option>
               </select></label
@@ -441,6 +447,11 @@
                 name="adminFullName"
                 required /></label
             ><label
+              >Perfil profesional<select name="adminProfessionalRole" required>
+                <option value="tecnico">Técnico de Prevención</option>
+                <option value="recurso">Recurso Preventivo</option>
+              </select></label
+            ><label
               >Código inicial del administrador<input
                 name="activationPin"
                 minlength="8"
@@ -462,6 +473,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="app.js?v=11.1.0"></script>
+    <script src="app.js?v=11.2.0"></script>
   </body>
 </html>

@@ -8,7 +8,7 @@ const views = {
 };
 const SUPABASE_URL = "https://opvmwbxtllwkureadfxw.supabase.co",
   SUPABASE_KEY = "sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W";
-const APP_VERSION = "11.1.0",
+const APP_VERSION = "11.2.0",
   PDF_MODEL = "rg-spm28-ed09",
   PDF_MODEL_ALIASES = new Set([PDF_MODEL, "rg-spm28-v9"]),
   PDF_TEMPLATE_SHA256 =
@@ -913,13 +913,16 @@ function isProjectAdmin() {
     )
   );
 }
+function professionalRoleLabel(role) {
+  return role === "recurso" ? "Recurso Preventivo" : "Técnico de Prevención";
+}
 async function selectProject(id) {
   currentProject = projects.find((p) => p.id === id) || projects[0];
   if (!currentProject) throw new Error("No tienes ningún proyecto asignado");
   localStorage.setItem("active-project-id", currentProject.id);
   $("#projectSelect").value = currentProject.id;
   $(".topbar span").textContent =
-    `${currentProject.name} · ${currentProfile.full_name}`;
+    `${currentProject.name} · ${currentProfile.full_name} · ${professionalRoleLabel(currentProfile.role)}`;
   await Promise.all([
     loadRecipients(),
     loadCatalogs(),
@@ -1033,18 +1036,22 @@ function openSettings() {
   $("#settingsProject").textContent =
     `${currentProject.name} · ${currentProject.code} · ${currentProject.worksite}`;
   renderRecipientSettings();
+  $("#currentUserProfile").textContent =
+    `Sesión: ${currentProfile.full_name} · ${professionalRoleLabel(currentProfile.role)} · ${currentProfile.is_superadmin ? "Administrador general" : isProjectAdmin() ? "Administrador de obra" : "Usuario"}`;
   $("#projectUserAdmin").classList.toggle("hidden", !isProjectAdmin());
   $("#globalProjectAdmin").classList.toggle(
     "hidden",
     !currentProfile.is_superadmin,
   );
-  const adminOption = $('#createUserForm option[value="admin"]');
+  const adminOption = $(
+    '#createUserForm [name="accessRole"] option[value="admin"]',
+  );
   adminOption.hidden = !currentProfile.is_superadmin;
   if (
     !currentProfile.is_superadmin &&
-    $("#createUserForm").elements.role.value === "admin"
+    $("#createUserForm").elements.accessRole.value === "admin"
   )
-    $("#createUserForm").elements.role.value = "member";
+    $("#createUserForm").elements.accessRole.value = "member";
   $("#settingsDialog").showModal();
 }
 
@@ -1283,7 +1290,8 @@ $("#createUserForm").onsubmit = async (event) => {
         projectId: currentProject.id,
         username: values.username,
         fullName: values.fullName,
-        role: values.role,
+        professionalRole: values.professionalRole,
+        role: values.accessRole,
         activationPin: values.activationPin,
       },
     },
@@ -1298,7 +1306,7 @@ $("#createUserForm").onsubmit = async (event) => {
     notice.classList.add("auth-error");
     return;
   }
-  notice.textContent = `Usuario ${created.username} autorizado. Entrégale de forma segura el código inicial: ${values.activationPin}`;
+  notice.textContent = `Perfil creado: ${created.username} · ${professionalRoleLabel(created.professional_role)} · ${created.project_role === "admin" ? "Administrador de obra" : "Usuario"}. Entrégale de forma segura el código inicial: ${values.activationPin}`;
   event.target.reset();
 };
 $("#createProjectForm").onsubmit = async (event) => {
@@ -1314,6 +1322,7 @@ $("#createProjectForm").onsubmit = async (event) => {
         worksite: values.worksite,
         adminUsername: values.adminUsername,
         adminFullName: values.adminFullName,
+        adminProfessionalRole: values.adminProfessionalRole,
         activationPin: values.activationPin,
       },
     },
@@ -1351,7 +1360,7 @@ $("#installButton").onclick = async () => {
 };
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
-    .register("sw.js?v=11.1.0", { updateViaCache: "none" })
+    .register("sw.js?v=11.2.0", { updateViaCache: "none" })
     .then((reg) => reg.update())
     .catch(() => {});
 (async () => {
