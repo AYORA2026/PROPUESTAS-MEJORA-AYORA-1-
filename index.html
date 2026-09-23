@@ -23,7 +23,7 @@
         <strong>PROPUESTAS DE MEJORA</strong
         ><span>ISFV Ayora I · RG-SPM-28</span>
       </div>
-      <span class="version-badge">v11.0.0</span>
+      <span class="version-badge">v11.1.0</span>
       <button id="installButton" class="ghost hidden" type="button">
         Instalar
       </button>
@@ -371,6 +371,13 @@
           Descargar PDF
         </button>
         <div id="recipientButtons" class="send-grid"></div>
+        <p class="privacy-reminder" role="alert">
+          <strong>Protección de datos:</strong> cuando la propuesta aparezca
+          como sincronizada en el histórico, elimina del móvil la copia
+          descargada del PDF y cualquier copia enviada o guardada fuera de la
+          aplicación. No elimines el expediente del servidor salvo que proceda y
+          estés autorizado.
+        </p>
         <p class="fineprint">
           Solo se muestran técnicos autorizados para el proyecto. Descarga el
           PDF y adjúntalo en el chat o correo del técnico seleccionado.
@@ -381,7 +388,7 @@
         <button class="dialog-close" data-close type="button">×</button>
         <h2>Configuración del proyecto</h2>
         <p id="settingsProject" class="notice"></p>
-        <p><strong>Versión de la aplicación:</strong> 11.0.0</p>
+        <p><strong>Versión de la aplicación:</strong> 11.1.0</p>
         <section id="recipientSettings">
           <h3>Técnicos destinatarios</h3>
           <div id="recipientSettingsList"></div>
@@ -455,6 +462,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="app.js?v=11"></script>
+    <script src="app.js?v=11.1.0"></script>
   </body>
 </html>

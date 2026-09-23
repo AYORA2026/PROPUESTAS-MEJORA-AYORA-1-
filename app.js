@@ -8,7 +8,7 @@ const views = {
 };
 const SUPABASE_URL = "https://opvmwbxtllwkureadfxw.supabase.co",
   SUPABASE_KEY = "sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W";
-const APP_VERSION = "11.0.0",
+const APP_VERSION = "11.1.0",
   PDF_MODEL = "rg-spm28-ed09",
   PDF_MODEL_ALIASES = new Set([PDF_MODEL, "rg-spm28-v9"]),
   PDF_TEMPLATE_SHA256 =
@@ -790,6 +790,35 @@ async function downloadHistoryPdf(id) {
   if (!response.ok) throw new Error("No se pudo descargar el PDF");
   downloadBlob(await response.blob(), `${query.data.proposal_number}.pdf`);
 }
+async function deleteProposal(id, number, syncStatus) {
+  const confirmation = prompt(
+    `ELIMINACIÓN IRREVERSIBLE\n\nSe borrarán del servidor la propuesta ${number} y su PDF privado. Esta acción no puede deshacerse.\n\nEscribe exactamente ${number} para confirmar:`,
+  );
+  if (confirmation === null) return false;
+  if (confirmation.trim() !== number) {
+    alert("El número escrito no coincide. No se ha eliminado nada.");
+    return false;
+  }
+
+  if (syncStatus !== "pending") {
+    const { data: response, error } = await sb.functions.invoke(
+      "manage-project",
+      { body: { action: "delete_proposal", proposalId: id } },
+    );
+    if (error || response?.error)
+      throw new Error(response?.error || error.message);
+  }
+
+  await dbDelete(id);
+  await refreshHistory({ skipSync: true });
+  showSyncNotice(
+    syncStatus === "pending"
+      ? `La propuesta local ${number} se ha eliminado.`
+      : `La propuesta ${number} y su PDF privado se han eliminado del servidor.`,
+    "ok",
+  );
+  return true;
+}
 function sendRecipient(id, channel) {
   const recipient = recipients.find((x) => x.id === id);
   if (!recipient) return;
@@ -982,7 +1011,7 @@ async function refreshHistory({ skipSync = false } = {}) {
     ? records
         .map(
           (r) =>
-            `<div class="history-item"><div><strong>${escapeHtml(r.number || pendingNumber(r.id))}</strong><span>${escapeHtml(r.summary?.workers || "")} · ${escapeHtml(r.summary?.zone || "")}</span><span>${new Date(r.createdAt).toLocaleString("es-ES")}</span>${r.lastSyncError ? `<span class="history-error">Pendiente: ${escapeHtml(r.lastSyncError)}</span>` : ""}</div><div class="history-actions"><span class="status ${r.syncStatus === "pending" ? "pending-status" : ""}">${r.syncStatus === "pending" ? "Pendiente de sincronizar" : escapeHtml(r.status || "cerrada")}</span>${r.hasLocalPdf || r.pdfPath ? `<button class="secondary history-download" data-id="${r.id}" type="button">Descargar PDF</button>` : ""}</div></div>`,
+            `<div class="history-item"><div><strong>${escapeHtml(r.number || pendingNumber(r.id))}</strong><span>${escapeHtml(r.summary?.workers || "")} · ${escapeHtml(r.summary?.zone || "")}</span><span>${new Date(r.createdAt).toLocaleString("es-ES")}</span>${r.lastSyncError ? `<span class="history-error">Pendiente: ${escapeHtml(r.lastSyncError)}</span>` : ""}</div><div class="history-actions"><span class="status ${r.syncStatus === "pending" ? "pending-status" : ""}">${r.syncStatus === "pending" ? "Pendiente de sincronizar" : escapeHtml(r.status || "cerrada")}</span>${r.hasLocalPdf || r.pdfPath ? `<button class="secondary history-download" data-id="${r.id}" type="button">Descargar PDF</button>` : ""}${isProjectAdmin() ? `<button class="history-delete" data-id="${r.id}" data-number="${escapeHtml(r.number || pendingNumber(r.id))}" data-sync-status="${escapeHtml(r.syncStatus || "synced")}" type="button">Eliminar propuesta</button>` : ""}</div></div>`,
         )
         .join("")
     : '<p class="empty">Todavía no hay propuestas guardadas.</p>';
@@ -1209,13 +1238,21 @@ $("#shareAppButton").onclick = shareApp;
 $("#projectSelect").onchange = (event) =>
   selectProject(event.target.value).catch((error) => alert(error.message));
 $("#historyList").onclick = async (e) => {
-  const button = e.target.closest(".history-download");
+  const button = e.target.closest(".history-download, .history-delete");
   if (!button) return;
   button.disabled = true;
   try {
-    await downloadHistoryPdf(button.dataset.id);
+    if (button.classList.contains("history-delete")) {
+      await deleteProposal(
+        button.dataset.id,
+        button.dataset.number,
+        button.dataset.syncStatus,
+      );
+    } else {
+      await downloadHistoryPdf(button.dataset.id);
+    }
   } catch (error) {
-    alert(error.message);
+    alert("No se pudo completar la operación: " + error.message);
   } finally {
     button.disabled = false;
   }
@@ -1314,7 +1351,7 @@ $("#installButton").onclick = async () => {
 };
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
-    .register("sw.js?v=11", { updateViaCache: "none" })
+    .register("sw.js?v=11.1.0", { updateViaCache: "none" })
     .then((reg) => reg.update())
     .catch(() => {});
 (async () => {

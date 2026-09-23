@@ -543,6 +543,22 @@ input[readonly] {
   padding: 9px 11px;
   white-space: nowrap;
 }
+.history-delete {
+  padding: 9px 11px;
+  white-space: nowrap;
+  background: #fff1f3;
+  color: var(--red-dark);
+  border: 1px solid #efb7c1;
+}
+.privacy-reminder {
+  background: #fff7e9;
+  border-left: 4px solid #b56a00;
+  color: #6f4300;
+  padding: 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+}
 .pending-status {
   color: #9a6500 !important;
 }

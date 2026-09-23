@@ -1,6 +1,6 @@
 # Propuestas de mejora · Ayora I
 
-PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido y aislado por proyecto. Versión actual: **11.0.0**.
+PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido y aislado por proyecto. Versión actual: **11.1.0**.
 
 ## Funcionamiento
 
@@ -15,6 +15,7 @@ PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Ed
 - Administrador general único, administradores de proyecto y usuarios ordinarios.
 - Envío de expedientes limitado a los técnicos destinatarios configurados por cada proyecto; no existe un botón genérico para compartir el PDF.
 - Botón independiente para compartir por WhatsApp únicamente el enlace de instalación de la aplicación.
+- Supresión irreversible de propuestas y de su PDF privado, disponible solo para el administrador general y el administrador del proyecto correspondiente, con confirmación escribiendo el número completo.
 
 ## Garantías del cierre
 
@@ -45,6 +46,8 @@ Después de cualquier cambio de esquema deben repetirse la auditoría RLS y los 
 
 La aplicación aplica minimización, autenticación, almacenamiento privado y control de acceso, pero el cumplimiento RGPD/LOPDGDD **no puede resolverse solo con código**. Antes de ampliar el uso, Eiffage debe documentar y aprobar:
 
+Después de generar cada PDF, la aplicación recuerda eliminar del dispositivo la copia descargada y cualquier copia enviada o guardada fuera de la aplicación cuando el expediente ya figure sincronizado. Esta limpieza local es distinta de la supresión administrativa del expediente alojado en el servidor.
+
 - finalidad y base jurídica;
 - información a trabajadores y empresas;
 - perfiles autorizados y revisión periódica de accesos;
@@ -74,4 +77,5 @@ Pruebas mínimas antes de publicar:
 2. Cerrar dos propuestas sin conexión y comprobar que ambas quedan pendientes.
 3. Recuperar cobertura y confirmar número oficial, histórico compartido y PDF remoto.
 4. Descargar un PDF antiguo desde el histórico.
-5. Renderizar una propuesta Eiffage y otra de contratista y revisar cada campo sobre el RG-SPM-28.
+5. Comprobar que un usuario ordinario no ve la opción de borrado y que los administradores solo pueden eliminar propuestas de sus proyectos.
+6. Renderizar una propuesta Eiffage y otra de contratista y revisar cada campo sobre el RG-SPM-28.
