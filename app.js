@@ -8,7 +8,7 @@ const views = {
 };
 const SUPABASE_URL = "https://opvmwbxtllwkureadfxw.supabase.co",
   SUPABASE_KEY = "sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W";
-const APP_VERSION = "11.2.1",
+const APP_VERSION = "11.3.0",
   PDF_MODEL = "rg-spm28-ed09",
   PDF_MODEL_ALIASES = new Set([PDF_MODEL, "rg-spm28-v9"]),
   PDF_TEMPLATE_SHA256 =
@@ -1149,6 +1149,7 @@ $("#loginForm").onsubmit = async (e) => {
 $("#showActivation").onclick = () => {
   $("#loginForm").classList.add("hidden");
   $("#showActivation").classList.add("hidden");
+  $("#showPasswordReset").classList.add("hidden");
   $("#activationForm").classList.remove("hidden");
   $("#authMessage").classList.add("hidden");
 };
@@ -1156,6 +1157,20 @@ $("#cancelActivation").onclick = () => {
   $("#activationForm").classList.add("hidden");
   $("#loginForm").classList.remove("hidden");
   $("#showActivation").classList.remove("hidden");
+  $("#showPasswordReset").classList.remove("hidden");
+};
+$("#showPasswordReset").onclick = () => {
+  $("#loginForm").classList.add("hidden");
+  $("#showActivation").classList.add("hidden");
+  $("#showPasswordReset").classList.add("hidden");
+  $("#passwordResetForm").classList.remove("hidden");
+  $("#authMessage").classList.add("hidden");
+};
+$("#cancelPasswordReset").onclick = () => {
+  $("#passwordResetForm").classList.add("hidden");
+  $("#loginForm").classList.remove("hidden");
+  $("#showActivation").classList.remove("hidden");
+  $("#showPasswordReset").classList.remove("hidden");
 };
 $("#activationForm").onsubmit = async (e) => {
   e.preventDefault();
@@ -1190,6 +1205,41 @@ $("#activationForm").onsubmit = async (e) => {
       `No se pudo conectar con el servicio de activación: ${error.message}`,
       true,
     );
+  }
+};
+$("#passwordResetForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const d = Object.fromEntries(new FormData(e.target));
+  authMessage("Cambiando contraseña…");
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/activate-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+        },
+        body: JSON.stringify({ ...d, mode: "reset" }),
+      }),
+      result = await response.json().catch(() => ({}));
+    if (!response.ok || result?.error)
+      return authMessage(
+        result?.error ||
+          `No se pudo cambiar la contraseña (error ${response.status}).`,
+        true,
+      );
+    const login = await sb.auth.signInWithPassword({
+      email: d.username.trim().toLowerCase() + "@usuarios.ayora1.es",
+      password: d.password,
+    });
+    if (login.error)
+      return authMessage(
+        "Contraseña cambiada. Ya puedes entrar con ella.",
+        false,
+      );
+    await enterApp(login.data.session);
+  } catch (error) {
+    authMessage(`No se pudo conectar con el servicio: ${error.message}`, true);
   }
 };
 $("#logoutButton").onclick = async () => {
@@ -1367,7 +1417,7 @@ $("#installButton").onclick = async () => {
 };
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
-    .register("sw.js?v=11.2.1", { updateViaCache: "none" })
+    .register("sw.js?v=11.3.0", { updateViaCache: "none" })
     .then((reg) => reg.update())
     .catch(() => {});
 (async () => {

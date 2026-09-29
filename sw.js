@@ -1,4 +1,4 @@
-const CACHE = "ayora-propuestas-v11-2-1";
+const CACHE = "ayora-propuestas-v11-3";
 const ASSETS = [
   "./",
   "index.html",
