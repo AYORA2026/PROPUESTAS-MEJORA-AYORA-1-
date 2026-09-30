@@ -508,6 +508,25 @@ input[readonly] {
   color: #4d596c;
 }
 @media (max-width: 620px) {
+  .topbar {
+    gap: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .topbar .brand-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 21px;
+    line-height: 36px;
+  }
+  .topbar > div:nth-child(2) {
+    min-width: 86px;
+    flex: 1;
+    font-size: 11px;
+  }
+  .topbar > div:nth-child(2) span {
+    display: none;
+  }
   main {
     padding-top: 14px;
   }
@@ -701,7 +720,8 @@ input[readonly] {
   .topbar #updateButton,
   .topbar #installButton {
     padding: 8px 9px;
-    font-size: 12px;
+    font-size: 11px;
+    margin-left: 0;
   }
   .photo-actions {
     grid-template-columns: 1fr;
