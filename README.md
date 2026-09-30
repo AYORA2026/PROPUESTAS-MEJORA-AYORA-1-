@@ -1,18 +1,22 @@
 # Propuestas de mejora · Ayora I
 
-PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido y aislado por proyecto. Versión actual: **11.1.0**.
+PWA multiproyecto para cumplimentar en campo el modelo oficial **RG-SPM-28 · Edición 09**, recoger la firma, incorporar fotografías, generar el PDF y mantener un histórico compartido y aislado por proyecto. Versión actual: **11.4.0**.
 
 ## Funcionamiento
 
 - Autenticación mediante Supabase Auth.
 - PDF generado sobre una copia byte a byte del modelo oficial. Se comprueba su SHA-256; si cambia o se corrompe, la generación se detiene.
 - Borradores completos en IndexedDB: texto, fotografías comprimidas y firma.
+- Actualización manual desde la propia aplicación instalada, sin desinstalarla.
+- Fotografías combinadas desde la cámara o el carrete del móvil, con eliminación previa y límite de seis.
+- Elección expresa entre firmar en pantalla o generar el PDF oficial con el espacio de firma vacío para su firma posterior.
 - Cierre sin conexión: PDF y expediente se guardan primero en el móvil, dentro de una cola persistente.
 - Sincronización automática al recuperar conexión, abrir o enfocar la aplicación y cada 60 segundos mientras está abierta.
 - Número oficial asignado exclusivamente por PostgreSQL. Hasta sincronizar se muestra `PENDIENTE-…`.
 - Histórico compartido y descarga posterior del PDF, desde la copia local o mediante enlace temporal al almacenamiento privado.
 - Selector de proyecto para usuarios que pertenezcan a más de uno.
 - Administrador general único, administradores de proyecto y usuarios ordinarios.
+- Perfil profesional independiente de los permisos: `Técnico de Prevención` o `Recurso Preventivo`. El administrador crea previamente el perfil autorizado y el trabajador lo activa después con su usuario, código personal y contraseña propia.
 - Envío de expedientes limitado a los técnicos destinatarios configurados por cada proyecto; no existe un botón genérico para compartir el PDF.
 - Botón independiente para compartir por WhatsApp únicamente el enlace de instalación de la aplicación.
 - Supresión irreversible de propuestas y de su PDF privado, disponible solo para el administrador general y el administrador del proyecto correspondiente, con confirmación escribiendo el número completo.

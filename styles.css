@@ -313,11 +313,60 @@ small,
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
+.photo-preview figure {
+  position: relative;
+  margin: 0;
+}
 .photo-preview img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: cover;
   border-radius: 9px;
+}
+.remove-photo {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(152, 16, 38, 0.94);
+  color: #fff;
+  font-size: 22px;
+  line-height: 28px;
+}
+.field-label,
+.signature-question {
+  display: block;
+  margin: 14px 0 7px;
+  font-weight: 750;
+}
+.photo-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.file-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin: 0;
+  text-align: center;
+  cursor: pointer;
+}
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }
 canvas {
   width: 100%;
@@ -648,6 +697,14 @@ input[readonly] {
   .version-badge {
     font-size: 9px !important;
     padding: 4px 6px;
+  }
+  .topbar #updateButton,
+  .topbar #installButton {
+    padding: 8px 9px;
+    font-size: 12px;
+  }
+  .photo-actions {
+    grid-template-columns: 1fr;
   }
   .recipient-setting {
     grid-template-columns: 1fr;

@@ -8,7 +8,7 @@ const views = {
 };
 const SUPABASE_URL = "https://opvmwbxtllwkureadfxw.supabase.co",
   SUPABASE_KEY = "sb_publishable_Iet2wIkRKD3lrPhQVxUjWA_yyAaky3W";
-const APP_VERSION = "11.3.0",
+const APP_VERSION = "11.4.0",
   PDF_MODEL = "rg-spm28-ed09",
   PDF_MODEL_ALIASES = new Set([PDF_MODEL, "rg-spm28-v9"]),
   PDF_TEMPLATE_SHA256 =
@@ -24,6 +24,7 @@ let currentStep = 1,
   currentPdf = null,
   currentRecord = null,
   installPrompt = null,
+  serviceWorkerRegistration = null,
   currentUser = null,
   currentProfile = null,
   currentProject = null,
@@ -174,18 +175,26 @@ function validateStep() {
 }
 function renderReview() {
   const d = data();
+  const signatureLabels = {
+    signed: "Realizada",
+    unsigned: "Sin firma; pendiente de firma posterior",
+    refused: "Negativa a firmar",
+    unable: "Imposibilidad de firma",
+  };
   $("#reviewCard").innerHTML =
-    `<dl><dt>Fecha</dt><dd>${escapeHtml(formatDate(d.inspectionDate))}</dd><dt>Técnico</dt><dd>${escapeHtml(d.inspector)}</dd><dt>Destinatario</dt><dd>${d.recipientType === "eiffage" ? "Grupo Eiffage" : escapeHtml(d.company)}</dd><dt>Trabajador/es</dt><dd>${escapeHtml(d.workers)}</dd><dt>Ubicación</dt><dd>${escapeHtml(d.worksite)} · ${escapeHtml(d.zone)}</dd><dt>Incumplimiento</dt><dd>${escapeHtml(d.deficiencies)}</dd><dt>Corrección</dt><dd>${escapeHtml(d.correctiveAction)}</dd><dt>Plazo</dt><dd>${escapeHtml(d.deadline)}</dd><dt>Firma</dt><dd>${d.signatureStatus === "signed" ? "Realizada" : d.signatureStatus === "refused" ? "Negativa a firmar" : "Imposibilidad de firma"}</dd><dt>Fotos</dt><dd>${photos.length}</dd></dl>`;
+    `<dl><dt>Fecha</dt><dd>${escapeHtml(formatDate(d.inspectionDate))}</dd><dt>Técnico</dt><dd>${escapeHtml(d.inspector)}</dd><dt>Destinatario</dt><dd>${d.recipientType === "eiffage" ? "Grupo Eiffage" : escapeHtml(d.company)}</dd><dt>Trabajador/es</dt><dd>${escapeHtml(d.workers)}</dd><dt>Ubicación</dt><dd>${escapeHtml(d.worksite)} · ${escapeHtml(d.zone)}</dd><dt>Incumplimiento</dt><dd>${escapeHtml(d.deficiencies)}</dd><dt>Corrección</dt><dd>${escapeHtml(d.correctiveAction)}</dd><dt>Plazo</dt><dd>${escapeHtml(d.deadline)}</dd><dt>Firma</dt><dd>${escapeHtml(signatureLabels[d.signatureStatus] || "No seleccionada")}</dd><dt>Fotos</dt><dd>${photos.length}</dd></dl>`;
 }
 function applyConditionalFields() {
   const d = data(),
     contractor = d.recipientType === "contractor",
-    signed = d.signatureStatus === "signed";
+    signed = d.signatureStatus === "signed",
+    needsWitness = ["refused", "unable"].includes(d.signatureStatus);
   $("#companyField").classList.toggle("hidden", !contractor);
   form.company.required = contractor;
   $("#signatureArea").classList.toggle("hidden", !signed);
-  $("#witnessField").classList.toggle("hidden", signed);
-  form.witness.required = !signed;
+  $("#witnessField").classList.toggle("hidden", !needsWitness);
+  $("#unsignedNotice").classList.toggle("hidden", d.signatureStatus !== "unsigned");
+  form.witness.required = needsWitness;
 }
 
 function pointer(e) {
@@ -214,19 +223,40 @@ canvas.addEventListener("pointermove", (e) => {
 });
 canvas.addEventListener("pointerup", () => (drawing = false));
 canvas.addEventListener("pointercancel", () => (drawing = false));
-$("#photoInput").addEventListener("change", async (e) => {
+async function addPhotos(files, input) {
   try {
-    photos = await Promise.all([...e.target.files].slice(0, 6).map(fileToData));
+    const available = Math.max(0, 6 - photos.length);
+    if (!available) {
+      alert("Ya has añadido el máximo de 6 fotografías.");
+      return;
+    }
+    const selected = [...files].slice(0, available);
+    photos.push(...(await Promise.all(selected.map(fileToData))));
     renderPhotos();
+    if (files.length > available)
+      alert(`Solo se admiten 6 fotografías. Se han añadido ${selected.length}.`);
   } catch (error) {
     alert("No se pudieron preparar las fotografías: " + error.message);
+  } finally {
+    input.value = "";
   }
-});
+}
+$("#cameraInput").addEventListener("change", (e) => addPhotos(e.target.files, e.target));
+$("#galleryInput").addEventListener("change", (e) => addPhotos(e.target.files, e.target));
 function renderPhotos() {
   $("#photoPreview").innerHTML = photos
-    .map((src) => `<img src="${src}" alt="Fotografía adjunta">`)
+    .map(
+      (src, index) =>
+        `<figure><img src="${src}" alt="Fotografía adjunta ${index + 1}"><button type="button" class="remove-photo" data-photo-index="${index}" aria-label="Eliminar fotografía ${index + 1}">×</button></figure>`,
+    )
     .join("");
 }
+$("#photoPreview").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-photo-index]");
+  if (!button) return;
+  photos.splice(Number(button.dataset.photoIndex), 1);
+  renderPhotos();
+});
 function fileToData(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -445,6 +475,8 @@ async function makePdf(d) {
     status =
       d.signatureStatus === "signed"
         ? ""
+        : d.signatureStatus === "unsigned"
+          ? ""
         : d.signatureStatus === "refused"
           ? `Se niega a firmar. Testigo: ${d.witness || "No consta"}`
           : `No puede firmar. Testigo: ${d.witness || "No consta"}`;
@@ -1415,11 +1447,56 @@ $("#installButton").onclick = async () => {
   installPrompt = null;
   $("#installButton").classList.add("hidden");
 };
-if ("serviceWorker" in navigator)
+async function updateApp() {
+  const button = $("#updateButton"),
+    originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = "Comprobando…";
+  try {
+    const response = await fetch(`version.json?t=${Date.now()}`, {
+      cache: "no-store",
+    });
+    if (!response.ok)
+      throw new Error("No se pudo consultar la versión publicada");
+    const published = await response.json();
+    if (published.version === APP_VERSION) {
+      alert(`La aplicación ya está actualizada (v${APP_VERSION}).`);
+      return;
+    }
+    const registration =
+      serviceWorkerRegistration ||
+      (await navigator.serviceWorker.getRegistration());
+    if (registration) await registration.update();
+    button.textContent = "Actualizando…";
+    setTimeout(() => location.reload(), 1200);
+  } catch (error) {
+    alert(
+      "No se pudo actualizar. Comprueba la conexión e inténtalo de nuevo. " +
+        error.message,
+    );
+  } finally {
+    setTimeout(() => {
+      button.disabled = false;
+      button.textContent = originalText;
+    }, 1500);
+  }
+}
+$("#updateButton").onclick = updateApp;
+if ("serviceWorker" in navigator) {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;
+    reloading = true;
+    location.reload();
+  });
   navigator.serviceWorker
-    .register("sw.js?v=11.3.0", { updateViaCache: "none" })
-    .then((reg) => reg.update())
+    .register("sw.js?v=11.4.0", { updateViaCache: "none" })
+    .then((reg) => {
+      serviceWorkerRegistration = reg;
+      return reg.update();
+    })
     .catch(() => {});
+}
 (async () => {
   const {
     data: { session },

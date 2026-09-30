@@ -13,7 +13,7 @@
     />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=11" />
+    <link rel="stylesheet" href="styles.css?v=11.4.0" />
     <title>Propuestas de mejora · Ayora I</title>
   </head>
   <body>
@@ -23,7 +23,8 @@
         <strong>PROPUESTAS DE MEJORA</strong
         ><span>ISFV Ayora I · RG-SPM-28</span>
       </div>
-      <span class="version-badge">v11.3.0</span>
+      <span class="version-badge">v11.4.0</span>
+      <button id="updateButton" class="ghost" type="button">Actualizar</button>
       <button id="installButton" class="ghost hidden" type="button">
         Instalar
       </button>
@@ -302,17 +303,28 @@
                 </select></label
               >
             </div>
-            <label
-              >Fotografías<input
-                id="photoInput"
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-              /><small
-                >Opcional. Se incorporarán como anexo al PDF.</small
-              ></label
-            >
+            <div class="photo-picker">
+              <span class="field-label">Fotografías</span>
+              <div class="photo-actions">
+                <label class="secondary file-button"
+                  >📷 Hacer foto<input
+                    id="cameraInput"
+                    class="visually-hidden"
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                /></label>
+                <label class="secondary file-button"
+                  >🖼️ Elegir del carrete<input
+                    id="galleryInput"
+                    class="visually-hidden"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                /></label>
+              </div>
+              <small>Opcional. Puedes combinar cámara y carrete, hasta 6 fotografías. Se incorporarán como anexo al PDF.</small>
+            </div>
             <div id="photoPreview" class="photo-preview"></div>
           </fieldset>
 
@@ -322,14 +334,25 @@
               La firma acredita la recepción de la propuesta y el compromiso de
               corrección; no sustituye una firma electrónica cualificada.
             </p>
-            <div class="choice-grid three">
+            <p class="signature-question">
+              ¿Quieres añadir la firma ahora o generar el PDF sin firma?
+            </p>
+            <div class="choice-grid two">
               <label class="choice"
                 ><input
                   type="radio"
                   name="signatureStatus"
                   value="signed"
-                  checked
-                /><span>Firma realizada</span></label
+                  required
+                /><span>Firmar ahora</span></label
+              >
+              <label class="choice"
+                ><input
+                  type="radio"
+                  name="signatureStatus"
+                  value="unsigned"
+                  required
+                /><span>Generar sin firma</span></label
               >
               <label class="choice"
                 ><input
@@ -346,6 +369,9 @@
                 /><span>No puede firmar</span></label
               >
             </div>
+            <p id="unsignedNotice" class="notice hidden">
+              El espacio oficial de firma quedará vacío para imprimir el PDF y firmarlo posteriormente por la persona o responsable que corresponda.
+            </p>
             <div id="signatureArea">
               <label>Firma de la persona apercibida</label>
               <canvas
@@ -421,7 +447,7 @@
         <button class="dialog-close" data-close type="button">×</button>
         <h2>Configuración del proyecto</h2>
         <p id="settingsProject" class="notice"></p>
-        <p><strong>Versión de la aplicación:</strong> 11.3.0</p>
+        <p><strong>Versión de la aplicación:</strong> 11.4.0</p>
         <p id="currentUserProfile" class="notice"></p>
         <section id="recipientSettings">
           <h3>Técnicos destinatarios</h3>
@@ -506,6 +532,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
-    <script src="app.js?v=11.3.0"></script>
+    <script src="app.js?v=11.4.0"></script>
   </body>
 </html>

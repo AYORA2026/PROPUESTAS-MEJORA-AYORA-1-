@@ -1,10 +1,11 @@
-const CACHE = "ayora-propuestas-v11-3";
+const CACHE = "ayora-propuestas-v11-4";
 const ASSETS = [
   "./",
   "index.html",
   "styles.css",
   "app.js",
   "manifest.webmanifest",
+  "version.json",
   "assets/icon.svg",
   "assets/template-part-01.txt",
   "assets/template-part-02.txt",
